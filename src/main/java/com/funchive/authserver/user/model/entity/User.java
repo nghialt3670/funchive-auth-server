@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Data
-@Entity
+@Entity(name = "users")
 @EntityListeners({AuditingEntityListener.class})
 public class User {
 

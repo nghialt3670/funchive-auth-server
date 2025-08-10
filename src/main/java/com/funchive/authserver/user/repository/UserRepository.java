@@ -7,9 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
+
     Optional<User> findBySlug(String slug);
 
     Optional<User> findByEmail(String email);
 
+    boolean existsBySlug(String slug);
+
     boolean existsByEmail(String email);
+
 }

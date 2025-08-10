@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@Entity
 @EqualsAndHashCode(callSuper = true)
+@Entity(name = "google_oauth2_credentials")
 public class GoogleOAuth2Credential extends Credential {
 
     @Column(nullable = false, unique = true)

@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Data
-@Entity
+@Entity(name = "credentials")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Credential {
 

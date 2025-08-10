@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@Entity
 @EqualsAndHashCode(callSuper = true)
+@Entity(name = "email_password_credentials")
 public class EmailPasswordCredential extends Credential {
 
     @Column(unique = true, nullable = false, updatable = false)

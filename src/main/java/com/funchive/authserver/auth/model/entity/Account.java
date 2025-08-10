@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Data
-@Entity
+@Entity(name = "accounts")
 @EntityListeners(AuditingEntityListener.class)
 public class Account {
 
