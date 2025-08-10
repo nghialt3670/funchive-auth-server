@@ -1,6 +1,7 @@
 package com.funchive.authserver.common.config;
 
 import com.funchive.authserver.auth.model.entity.Account;
+import com.funchive.authserver.common.constant.DefaultConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -24,15 +25,16 @@ public class PersistenceConfig {
             @Override
             public Optional<UUID> getCurrentAuditor() {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                Optional<UUID> defaultAuditor = Optional.of(DefaultConstants.DEFAULT_USER_ID);
 
                 if (authentication == null || !authentication.isAuthenticated()) {
-                    return Optional.empty();
+                    return defaultAuditor;
                 }
 
                 Object principal = authentication.getPrincipal();
 
                 if (!(principal instanceof Account account)) {
-                    return Optional.empty();
+                    return defaultAuditor;
                 }
 
                 return Optional.of(account.getUser().getId());

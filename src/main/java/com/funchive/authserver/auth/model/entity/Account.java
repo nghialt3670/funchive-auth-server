@@ -59,7 +59,7 @@ public class Account {
 
     @LastModifiedBy
     @Column(nullable = false)
-    private Instant lastModifiedBy;
+    private UUID lastModifiedBy;
 
     public void addAuthority(Authority authority) {
         this.authorities.add(authority);

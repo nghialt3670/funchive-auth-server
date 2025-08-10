@@ -45,6 +45,6 @@ public class User {
 
     @LastModifiedBy
     @Column(nullable = false)
-    private Instant lastModifiedBy;
+    private UUID lastModifiedBy;
 
 }
