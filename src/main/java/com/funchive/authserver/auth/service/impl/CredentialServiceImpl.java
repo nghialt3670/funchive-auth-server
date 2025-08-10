@@ -47,6 +47,29 @@ public class CredentialServiceImpl implements CredentialService {
     }
 
     @Override
+    public boolean checkAccountExists(Authentication authentication) {
+        if (authentication instanceof UsernamePasswordAuthenticationToken token) {
+            String email = token.getName();
+            return emailPasswordCredentialRepository.existsByEmail(email);
+        }
+
+        if (authentication instanceof OAuth2AuthenticationToken token) {
+            String provider = token.getAuthorizedClientRegistrationId();
+            OAuth2User oAuth2User = token.getPrincipal();
+
+            switch (provider) {
+                case "google":
+                    String sub = oAuth2User.getAttribute("sub");
+                    return googleOAuth2CredentialRepository.existsBySub(sub);
+                default:
+                    throw new OAuth2ProviderNotSupportedException(provider);
+            }
+        }
+
+        throw new AuthenticationNotSupportedException(authentication);
+    }
+
+    @Override
     public UUID getAccountId(Authentication authentication) {
         if (authentication instanceof UsernamePasswordAuthenticationToken token) {
             String email = token.getName();
@@ -62,8 +85,8 @@ public class CredentialServiceImpl implements CredentialService {
 
             switch (provider) {
                 case "google":
-                    String email = oAuth2User.getAttribute("email");
-                    return googleOAuth2CredentialRepository.findByEmail(email)
+                    String sub = oAuth2User.getAttribute("sub");
+                    return googleOAuth2CredentialRepository.findBySub(sub)
                             .map(GoogleOAuth2Credential::getAccount)
                             .map(Account::getId)
                             .orElseThrow(() -> new CredentialNotFoundException(authentication));

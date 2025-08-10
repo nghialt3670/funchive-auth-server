@@ -7,5 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface EmailPasswordCredentialRepository extends JpaRepository<EmailPasswordCredential, UUID> {
+
+    boolean existsByEmail(String email);
+
     Optional<EmailPasswordCredential> findByEmail(String email);
+
 }

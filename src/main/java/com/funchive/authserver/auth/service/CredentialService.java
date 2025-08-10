@@ -9,6 +9,8 @@ public interface CredentialService {
 
     UserCreateDto getUserCreateDto(Authentication authentication);
 
+    boolean checkAccountExists(Authentication authentication);
+
     UUID getAccountId(Authentication authentication);
 
     UUID getAccountId(String email);
