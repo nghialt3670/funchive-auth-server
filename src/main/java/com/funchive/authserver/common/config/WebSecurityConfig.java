@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -22,12 +23,13 @@ public class WebSecurityConfig {
                 .cors(corsCustomizer())
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistryCustomizer())
                 .formLogin(formLoginConfigurerCustomizer())
+                .logout(logoutConfigurer())
                 .build();
     }
 
     public Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizationManagerRequestMatcherRegistryCustomizer() {
         return registry -> registry
-                .requestMatchers("/login", "/login.html", "/css/**", "/js/**", "/images/**")
+                .requestMatchers("/login", "/login.html", "/logout", "/css/**", "/js/**", "/images/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
@@ -36,6 +38,15 @@ public class WebSecurityConfig {
     private Customizer<FormLoginConfigurer<HttpSecurity>> formLoginConfigurerCustomizer() {
         return configurer -> configurer
                 .loginPage("/login.html");
+    }
+
+    private Customizer<LogoutConfigurer<HttpSecurity>> logoutConfigurer() {
+        return configurer -> configurer
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login.html")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID", "remember-me");
     }
 
     private Customizer<CorsConfigurer<HttpSecurity>> corsCustomizer() {

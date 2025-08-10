@@ -9,6 +9,7 @@ import java.util.UUID;
 @Builder
 public class UserDetailDto {
     private UUID id;
+    private String slug;
     private String name;
     private String email;
     private String avatarUrl;
