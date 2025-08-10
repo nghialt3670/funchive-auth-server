@@ -18,10 +18,24 @@ public class AuthorityServiceImpl implements AuthorityService {
     private final AuthorityMapper authorityMapper;
 
     @Override
+    public AuthorityDetailDto createAuthority(String name) {
+        Authority authority = new Authority();
+        authority.setName(name);
+        Authority savedAuthority = authorityRepository.save(authority);
+        return authorityMapper.toAuthorityDetailDto(savedAuthority);
+    }
+
+    @Override
     public AuthorityDetailDto getAuthorityDetail(String name) {
         Authority authority = authorityRepository.findByName(name)
                 .orElseThrow(() -> new AuthorityNotFoundException(name));
 
         return authorityMapper.toAuthorityDetailDto(authority);
     }
+
+    @Override
+    public boolean checkAuthorityExists(String name) {
+        return authorityRepository.existsByName(name);
+    }
+
 }

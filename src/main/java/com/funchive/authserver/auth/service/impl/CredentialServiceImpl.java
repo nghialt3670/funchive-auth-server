@@ -58,11 +58,11 @@ public class CredentialServiceImpl implements CredentialService {
             OAuth2User oAuth2User = token.getPrincipal();
 
             switch (provider) {
-                case "google":
+                case "google" -> {
                     String sub = oAuth2User.getAttribute("sub");
                     return googleOAuth2CredentialRepository.existsBySub(sub);
-                default:
-                    throw new OAuth2ProviderNotSupportedException(provider);
+                }
+                default -> throw new OAuth2ProviderNotSupportedException(provider);
             }
         }
 
@@ -84,14 +84,15 @@ public class CredentialServiceImpl implements CredentialService {
             OAuth2User oAuth2User = token.getPrincipal();
 
             switch (provider) {
-                case "google":
+                case "google" -> {
                     String sub = oAuth2User.getAttribute("sub");
                     return googleOAuth2CredentialRepository.findBySub(sub)
                             .map(GoogleOAuth2Credential::getAccount)
                             .map(Account::getId)
                             .orElseThrow(() -> new CredentialNotFoundException(authentication));
-                default:
-                    throw new OAuth2ProviderNotSupportedException(provider);
+
+                }
+                default -> throw new OAuth2ProviderNotSupportedException(provider);
             }
         }
 
@@ -113,10 +114,12 @@ public class CredentialServiceImpl implements CredentialService {
     public void createCredential(UUID accountId, Authentication authentication) {
         if (authentication instanceof UsernamePasswordAuthenticationToken token) {
             createEmailPasswordCredential(accountId, token);
+            return;
         }
 
         if (authentication instanceof OAuth2AuthenticationToken token) {
             createOAuth2Credential(accountId, token);
+            return;
         }
 
         throw new AuthenticationNotSupportedException(authentication);
@@ -126,10 +129,12 @@ public class CredentialServiceImpl implements CredentialService {
     public void updateCredential(Authentication authentication) {
         if (authentication instanceof UsernamePasswordAuthenticationToken token) {
             updateEmailPasswordCredential(token);
+            return;
         }
 
         if (authentication instanceof OAuth2AuthenticationToken token) {
             updateOAuth2Credential(token);
+            return;
         }
 
         throw new AuthenticationNotSupportedException(authentication);
@@ -139,16 +144,16 @@ public class CredentialServiceImpl implements CredentialService {
         String provider = token.getAuthorizedClientRegistrationId();
         OAuth2User oAuth2User = token.getPrincipal();
 
-        switch (provider) {
-            case "google":
-                return UserCreateDto.builder()
+        return switch (provider) {
+            case "google" ->
+                    UserCreateDto.builder()
                         .email(oAuth2User.getAttribute("email"))
                         .name(oAuth2User.getAttribute("name"))
                         .avatarUrl(oAuth2User.getAttribute("picture"))
                         .build();
-            default:
-                throw new OAuth2ProviderNotSupportedException(provider);
-        }
+
+            default -> throw new OAuth2ProviderNotSupportedException(provider);
+        };
     }
 
     private void createEmailPasswordCredential(UUID accountId, UsernamePasswordAuthenticationToken token) {
@@ -168,7 +173,7 @@ public class CredentialServiceImpl implements CredentialService {
         Account account = entityManager.getReference(Account.class, accountId);
 
         switch (provider) {
-            case "google":
+            case "google" -> {
                 GoogleOAuth2Credential credential = new GoogleOAuth2Credential();
                 credential.setAccount(account);
                 credential.setSub(oAuth2User.getAttribute("sub"));
@@ -176,12 +181,12 @@ public class CredentialServiceImpl implements CredentialService {
                 credential.setGivenName(oAuth2User.getAttribute("given_name"));
                 credential.setFamilyName(oAuth2User.getAttribute("family_name"));
                 credential.setEmail(oAuth2User.getAttribute("email"));
-                credential.setEmailVerified(Boolean.parseBoolean(oAuth2User.getAttribute("email_verified")));
+                credential.setEmailVerified(Boolean.TRUE.equals(oAuth2User.getAttribute("email_verified")));
                 credential.setPicture(oAuth2User.getAttribute("picture"));
                 googleOAuth2CredentialRepository.save(credential);
+            }
 
-            default:
-                throw new OAuth2ProviderNotSupportedException(provider);
+            default -> throw new OAuth2ProviderNotSupportedException(provider);
         }
     }
 
@@ -200,7 +205,8 @@ public class CredentialServiceImpl implements CredentialService {
         OAuth2User oAuth2User = token.getPrincipal();
 
         switch (provider) {
-            case "google":
+            case "google" -> {
+
                 GoogleOAuth2Credential credential = googleOAuth2CredentialRepository.findByEmail(
                                 oAuth2User.getAttribute("email"))
                         .orElseThrow(() -> new CredentialNotFoundException(
@@ -208,12 +214,12 @@ public class CredentialServiceImpl implements CredentialService {
                 credential.setName(oAuth2User.getAttribute("name"));
                 credential.setGivenName(oAuth2User.getAttribute("given_name"));
                 credential.setFamilyName(oAuth2User.getAttribute("family_name"));
-                credential.setEmailVerified(Boolean.parseBoolean(oAuth2User.getAttribute("email_verified")));
+                credential.setEmailVerified(Boolean.TRUE.equals(oAuth2User.getAttribute("email_verified")));
                 credential.setPicture(oAuth2User.getAttribute("picture"));
                 googleOAuth2CredentialRepository.save(credential);
+            }
 
-            default:
-                throw new OAuth2ProviderNotSupportedException(provider);
+            default -> throw new OAuth2ProviderNotSupportedException(provider);
         }
     }
 

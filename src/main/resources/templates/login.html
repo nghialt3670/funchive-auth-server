@@ -1,120 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-          margin: 0;
-          font-family: 'Segoe UI', sans-serif;
-          background: #f5f7fa;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
 
         .login-container {
-          background: white;
-          padding: 2rem 3rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          width: 100%;
-          max-width: 400px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 380px;
+            color: white;
         }
 
         h2 {
-          text-align: center;
-          margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
         }
 
         input[type="text"],
         input[type="password"] {
-          width: 100%;
-          padding: 0.75rem;
-          margin-bottom: 1rem;
-          border: 1px solid #ccc;
-          border-radius: 6px;
-          font-size: 1rem;
+            width: 100%;
+            padding: 0.85rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(85, 99, 222, 0.3);
         }
 
         .btn {
-          width: 100%;
-          padding: 0.75rem;
-          background-color: #007bff;
-          color: white;
-          font-size: 1rem;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          margin-bottom: 1rem;
-          transition: background-color 0.2s ease-in-out;
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #5563DE;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: background-color 0.2s ease-in-out;
         }
 
         .btn:hover {
-          background-color: #0056b3;
+            background-color: #3f4ac4;
         }
 
         .oauth-btn {
-          background-color: #f5f5f5;
-          color: #333;
-          border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            background-color: white;
+            color: #333;
         }
 
-        .oauth-btn.google {
-          background-color: #ea4335;
-          color: white;
-          border: none;
-        }
-
-        .oauth-btn.github {
-          background-color: #333;
-          color: white;
-          border: none;
+        .oauth-btn img {
+            height: 20px;
+            width: 20px;
         }
 
         .separator {
-          text-align: center;
-          margin: 1rem 0;
-          position: relative;
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
 
         .separator::before,
         .separator::after {
-          content: "";
-          position: absolute;
-          top: 50%;
-          width: 40%;
-          height: 1px;
-          background-color: #ccc;
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background-color: rgba(255,255,255,0.4);
         }
 
         .separator::before {
-          left: 0;
+            left: 0;
         }
 
         .separator::after {
-          right: 0;
+            right: 0;
         }
     </style>
 </head>
 <body>
 <div class="login-container">
-    <h2>Welcome</h2>
+    <h2>Welcome Back</h2>
     <form action="/login" method="post">
-        <input name="username" placeholder="Username" required type="text"/>
-        <input name="password" placeholder="Password" required type="password"/>
-        <button class="btn" type="submit">Login</button>
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit" class="btn">Login</button>
     </form>
 
     <div class="separator">or</div>
 
-    <a class="btn oauth-btn google" href="/oauth2/authorization/google?client_id={clientId}">
+    <a href="/oauth2/authorization/google" class="btn oauth-btn">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
         Login with Google
-    </a>
-    <a class="btn oauth-btn github" href="/oauth2/authorization/github?client_id={clientId}">
-        Login with GitHub
     </a>
 </div>
 </body>

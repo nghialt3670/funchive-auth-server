@@ -7,5 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AuthorityRepository extends JpaRepository<Authority, UUID> {
+
     Optional<Authority> findByName(String name);
+
+    boolean existsByName(String name);
+
 }

@@ -1,6 +1,7 @@
 package com.funchive.authserver.auth.service.impl;
 
 import com.funchive.authserver.auth.exception.AccountNotFoundException;
+import com.funchive.authserver.auth.exception.AccountWithUserIdNotFoundException;
 import com.funchive.authserver.auth.model.dto.AuthorityDetailDto;
 import com.funchive.authserver.auth.model.entity.Account;
 import com.funchive.authserver.auth.model.entity.Authority;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -36,25 +38,30 @@ public class AccountServiceImpl implements AccountService {
     private final EntityManager entityManager;
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails getAccountDetail(UUID userId) {
         Account account = accountRepository.findByUserId(userId)
-                .orElseThrow(() -> new AccountNotFoundException(userId.toString()));
-
+                .orElseThrow(() -> new AccountWithUserIdNotFoundException(userId.toString()));
         return new AccountDetails(account);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails getAccountDetail(Authentication authentication) {
         UUID accountId = credentialService.getAccountId(authentication);
-        return getAccountDetail(accountId);
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId.toString()));
+        return new AccountDetails(account);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean checkAccountExists(Authentication authentication) {
-        return false;
+        return credentialService.checkAccountExists(authentication);
     }
 
     @Override
+    @Transactional
     public UserDetails createAccount(Authentication authentication) {
         UserCreateDto userCreateDto = credentialService.getUserCreateDto(authentication);
         UserDetailDto userDetailDto = userService.createUser(userCreateDto);
@@ -64,7 +71,9 @@ public class AccountServiceImpl implements AccountService {
         User user = entityManager.getReference(User.class, userDetailDto.getId());
         account.setUser(user);
 
-        AuthorityDetailDto authorityDetailDto = authorityService.getAuthorityDetail("ROLE_USER");
+        AuthorityDetailDto authorityDetailDto = authorityService.checkAuthorityExists("ROLE_USER")
+                ? authorityService.getAuthorityDetail("ROLE_USER")
+                : authorityService.createAuthority("ROLE_USER");
         Authority authority = entityManager.getReference(Authority.class, authorityDetailDto.getId());
         account.addAuthority(authority);
 
@@ -75,6 +84,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public UserDetails updateAccount(Authentication authentication) {
         credentialService.updateCredential(authentication);
         return getAccountDetail(authentication);
