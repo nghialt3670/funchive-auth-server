@@ -1,51 +1,5 @@
 spring:
-  security:
-    oauth2:
-      authorizationserver:
-        client:
-          funchive-web-client:
-            registration:
-              client-id: ${FUNCHIVE_WEB_CLIENT_ID}
-              client-authentication-methods:
-                - "none"
-              authorization-grant-types:
-                - "authorization_code"
-                - "refresh_token"
-              redirect-uris:
-                - ${FUNCHIVE_WEB_REDIRECT_URI}
-              scopes:
-                - "openid"
-            require-authorization-consent: true
-            require-proof-key: true
-            post-logout-redirect-uris:
-              - ${FUNCHIVE_WEB_POST_LOGOUT_REDIRECT_URI}
-      client:
-        registration:
-          google:
-            client-id: ${FUNCHIVE_GOOGLE_CLIENT_ID}
-            client-secret: ${FUNCHIVE_GOOGLE_CLIENT_SECRET}
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-
-          github:
-            client-id: ${FUNCHIVE_GITHUB_CLIENT_ID}
-            client-secret: ${FUNCHIVE_GITHUB_CLIENT_SECRET}
-            scope: read:user, user:email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-
-  datasource:
-    url: jdbc:postgresql://${FUNCHIVE_USER_POSTGRES_HOST}:${FUNCHIVE_USER_POSTGRES_PORT}/${FUNCHIVE_USER_POSTGRES_DATABASE}
-    username: ${FUNCHIVE_USER_POSTGRES_USERNAME}
-    password: ${FUNCHIVE_USER_POSTGRES_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
-logging:
-  level:
-    org.springframework.security.oauth2.server.authorization.web: TRACE
-    org.springframework.security.oauth2.server.authorization.authentication: TRACE
-    org.springframework.security.authentication: DEBUG
-    org.springframework.security.web: DEBUG
+  application:
+    name: funchive-auth-server
+  config:
+    import: configserver:${FUNCHIVE_CONFIG_SERVER_URL:http://localhost:8888}
