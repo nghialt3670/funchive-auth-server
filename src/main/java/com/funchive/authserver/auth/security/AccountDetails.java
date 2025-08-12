@@ -65,21 +65,4 @@ public class AccountDetails implements UserDetails {
         return account.isEnabled();
     }
 
-    // Additional methods to access user information
-    public String getName() {
-        return account.getUser().getName();
-    }
-
-    public String getEmail() {
-        return account.getUser().getEmail();
-    }
-
-    public String getAvatarUrl() {
-        return account.getUser().getAvatarUrl();
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
 }

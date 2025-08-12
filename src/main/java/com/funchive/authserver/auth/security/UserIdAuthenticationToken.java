@@ -16,6 +16,11 @@ public class UserIdAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     @Override
+    public String getName() {
+        return userId;
+    }
+
+    @Override
     public Object getCredentials() {
         return null;
     }

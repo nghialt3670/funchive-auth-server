@@ -1,9 +1,7 @@
 package com.funchive.authserver.auth.config;
 
-import com.funchive.authserver.auth.security.AccountDetailsService;
-import com.funchive.authserver.auth.security.UserIdAuthenticationToken;
-import com.funchive.authserver.user.service.UserService;
 import com.funchive.authserver.user.model.dto.UserDetailDto;
+import com.funchive.authserver.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -14,33 +12,33 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationEndpointConfigurer;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2TokenEndpointConfigurer;
-import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OidcConfigurer;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OidcUserInfoEndpointConfigurer;
+import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcUserInfoAuthenticationContext;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import org.springframework.security.core.GrantedAuthority;
+import java.util.function.Function;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class AuthorizationServerConfig {
 
-    private final AuthenticationConverter converter;
     private final UserService userService;
+
+    private final AuthenticationConverter converter;
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -68,8 +66,32 @@ public class AuthorizationServerConfig {
 
     private Customizer<OAuth2AuthorizationServerConfigurer> oAuth2AuthorizationServerConfigurerCustomizer() {
         return configurer -> configurer
-                .oidc(Customizer.withDefaults())
+                .oidc(oidcConfigurerCustomizer())
                 .authorizationEndpoint(authorizationEndpointCustomizer());
+    }
+
+    private Customizer<OidcConfigurer> oidcConfigurerCustomizer() {
+        return configurer -> configurer
+                .userInfoEndpoint(oidcUserInfoEndpointConfigurerCustomizer());
+    }
+
+    private Customizer<OidcUserInfoEndpointConfigurer> oidcUserInfoEndpointConfigurerCustomizer() {
+        return configurer -> configurer
+                .userInfoMapper(userInfoMapper());
+    }
+
+    private Function<OidcUserInfoAuthenticationContext, OidcUserInfo> userInfoMapper() {
+        return context -> {
+            Authentication authentication = context.getAuthentication();
+            UUID userId = UUID.fromString(authentication.getName());
+            UserDetailDto userDetailDto = userService.getUserDetailById(userId);
+            return new OidcUserInfo(Map.of(
+                    "sub", userId.toString(),
+                    "slug", userDetailDto.getSlug(),
+                    "name", userDetailDto.getName(),
+                    "email", userDetailDto.getEmail(),
+                    "avatarUrl", userDetailDto.getAvatarUrl()));
+        };
     }
 
     private Customizer<OAuth2AuthorizationEndpointConfigurer> authorizationEndpointCustomizer() {
@@ -85,31 +107,6 @@ public class AuthorizationServerConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
-        return context -> {
-            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())
-                    || "id_token".equals(context.getTokenType().getValue())) {
-                Authentication authentication = context.getPrincipal();
-                if (authentication instanceof UserIdAuthenticationToken token) {
-                    String userId = (String) token.getPrincipal();
-                    context.getClaims().claim("sub", userId);
-
-                    List<String> authorities = token.getAuthorities().stream()
-                            .map(GrantedAuthority::getAuthority)
-                            .toList();
-                    context.getClaims().claim("authorities", authorities);
-
-                    UserDetailDto userDetail = userService.getUserDetailById(UUID.fromString(userId));
-                    context.getClaims().claim("slug", userDetail.getSlug());
-                    context.getClaims().claim("name", userDetail.getName());
-                    context.getClaims().claim("email", userDetail.getEmail());
-                    context.getClaims().claim("avatarUrl", userDetail.getAvatarUrl());
-                }
-            }
-        };
     }
 
 }

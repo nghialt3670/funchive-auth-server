@@ -10,8 +10,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
@@ -24,7 +26,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -50,7 +55,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                     HttpServletResponse.SC_BAD_REQUEST, "Original OAuth2 authorization request not found");
             return;
         }
-
         OAuth2AuthorizationRequest oAuth2AuthRequest = optionalOAuth2AuthorizationRequest.get();
 
         RegisteredClient client = clientRepository.findByClientId(oAuth2AuthRequest.getClientId());
@@ -63,9 +67,21 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 ? accountService.updateAccount(authentication)
                 : accountService.createAccount(authentication);
 
-        OAuth2AuthorizationCode code = OAuth2AuthorizationUtils.buildAuthorizationCode(client);
+        Authentication principal = new UserIdAuthenticationToken(
+                userDetails.getUsername(),
+                userDetails.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(principal);
 
-        OAuth2Authorization authorization = buildAuthorization(client, userDetails, oAuth2AuthRequest, code);
+        OAuth2AuthorizationCode code = OAuth2AuthorizationUtils.buildAuthorizationCode(client);
+        OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(client)
+                .principalName(userDetails.getUsername())
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizedScopes(oAuth2AuthRequest.getScopes())
+                .attribute(Principal.class.getName(), principal)
+                .attribute(OAuth2AuthorizationRequest.class.getName(), oAuth2AuthRequest)
+                .token(code)
+                .build();
         authorizationService.save(authorization);
 
         String redirectUri = OAuth2AuthorizationUtils.buildRedirectUri(oAuth2AuthRequest, code);
@@ -87,26 +103,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         OAuth2AuthorizationRequest oAuth2AuthRequest =
                 OAuth2AuthorizationUtils.buildAuthorizationRequest(requestAuthToken);
         return Optional.of(oAuth2AuthRequest);
-    }
-
-    private OAuth2Authorization buildAuthorization(
-            RegisteredClient client,
-            UserDetails userDetails,
-            OAuth2AuthorizationRequest request,
-            OAuth2AuthorizationCode code
-    ) {
-        Authentication principal = new UserIdAuthenticationToken(
-                userDetails.getUsername(),
-                userDetails.getAuthorities()
-        );
-
-        return OAuth2Authorization.withRegisteredClient(client)
-                .principalName(userDetails.getUsername())
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .attribute(Principal.class.getName(), principal)
-                .attribute(OAuth2AuthorizationRequest.class.getName(), request)
-                .token(code)
-                .build();
     }
 
 }
