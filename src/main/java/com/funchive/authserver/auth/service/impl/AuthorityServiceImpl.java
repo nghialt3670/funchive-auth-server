@@ -8,6 +8,7 @@ import com.funchive.authserver.auth.repository.AuthorityRepository;
 import com.funchive.authserver.auth.service.AuthorityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class AuthorityServiceImpl implements AuthorityService {
     private final AuthorityMapper authorityMapper;
 
     @Override
+    @Transactional
     public AuthorityDetailDto createAuthority(String name) {
         Authority authority = new Authority();
         authority.setName(name);
@@ -26,6 +28,7 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AuthorityDetailDto getAuthorityDetail(String name) {
         Authority authority = authorityRepository.findByName(name)
                 .orElseThrow(() -> new AuthorityNotFoundException(name));
@@ -34,6 +37,7 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean checkAuthorityExists(String name) {
         return authorityRepository.existsByName(name);
     }

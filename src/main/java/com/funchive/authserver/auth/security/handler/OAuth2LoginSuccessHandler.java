@@ -1,7 +1,7 @@
 package com.funchive.authserver.auth.security.handler;
 
 import com.funchive.authserver.auth.constant.OAuth2AuthorizationConstants;
-import com.funchive.authserver.auth.security.UserIdAuthenticationToken;
+import com.funchive.authserver.auth.security.authentication.UserIdAuthenticationToken;
 import com.funchive.authserver.auth.service.AccountService;
 import com.funchive.authserver.auth.utils.OAuth2AuthorizationUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
@@ -26,10 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -63,10 +59,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        UserDetails userDetails = accountService.checkAccountExists(authentication)
-                ? accountService.updateAccount(authentication)
-                : accountService.createAccount(authentication);
-
+        UserDetails userDetails = getUserDetails(authentication);
         Authentication principal = new UserIdAuthenticationToken(
                 userDetails.getUsername(),
                 userDetails.getAuthorities()
@@ -103,6 +96,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         OAuth2AuthorizationRequest oAuth2AuthRequest =
                 OAuth2AuthorizationUtils.buildAuthorizationRequest(requestAuthToken);
         return Optional.of(oAuth2AuthRequest);
+    }
+
+    private UserDetails getUserDetails(Authentication authentication) {
+        if (accountService.checkAccountExists(authentication)) {
+            accountService.updateAccountIdentity(authentication);
+            return accountService.getUserDetails(authentication);
+        }
+
+        return accountService.createAccountByIdentity(authentication);
     }
 
 }

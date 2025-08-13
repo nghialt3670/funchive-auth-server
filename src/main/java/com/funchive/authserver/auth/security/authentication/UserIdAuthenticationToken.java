@@ -1,4 +1,4 @@
-package com.funchive.authserver.auth.security;
+package com.funchive.authserver.auth.security.authentication;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
