@@ -2,6 +2,8 @@ package com.funchive.authserver.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
@@ -17,33 +19,31 @@ import java.util.List;
 public class WebSecurityConfig {
 
     @Bean
+    @Order(Ordered.LOWEST_PRECEDENCE)
     public SecurityFilterChain commonSecurityFilterChain(HttpSecurity security) throws Exception {
         return security
                 .securityMatcher("/**")
                 .cors(corsCustomizer())
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistryCustomizer())
-                .formLogin(formLoginConfigurerCustomizer())
                 .logout(logoutConfigurer())
                 .build();
     }
 
     public Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizationManagerRequestMatcherRegistryCustomizer() {
         return registry -> registry
-                .requestMatchers("/login", "/login.html", "/logout", "/css/**", "/js/**", "/images/**")
+                .requestMatchers("/login", "/login.html", "/logout", "/error", "/css/**", "/js/**", "/images/**",
+                        "/registration/email-password/**", "/oauth2/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
     }
 
-    private Customizer<FormLoginConfigurer<HttpSecurity>> formLoginConfigurerCustomizer() {
-        return configurer -> configurer
-                .loginPage("/login.html");
-    }
+
 
     private Customizer<LogoutConfigurer<HttpSecurity>> logoutConfigurer() {
         return configurer -> configurer
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login.html")
+                .logoutSuccessUrl("/login")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID", "remember-me");

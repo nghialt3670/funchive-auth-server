@@ -6,6 +6,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
+
 @Data
 @Builder
 public class UserCreateDto {
@@ -17,6 +21,9 @@ public class UserCreateDto {
     @Email(message = "Invalid user email format")
     @Size(max = 100, message = "User email must be at most 100 characters")
     private String email;
+
+    @NotBlank(message = "User birth date must not be blank")
+    private LocalDate birthDate;
 
     @Size(max = 255, message = "User avatar URL must be at most 255 characters")
     private String avatarUrl;

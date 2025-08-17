@@ -10,7 +10,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,7 +51,22 @@ public class AuthorizationServerConfig {
                 .securityMatcher(configurer.getEndpointsMatcher())
                 .cors(corsCustomizer())
                 .with(configurer, oAuth2AuthorizationServerConfigurerCustomizer())
+                .formLogin(formLoginConfigurerCustomizer())
+                .authorizeHttpRequests(authorizeHttpRequestsCustomizer())
                 .build();
+    }
+
+    private Customizer<FormLoginConfigurer<HttpSecurity>> formLoginConfigurerCustomizer() {
+        return configurer -> configurer
+                .loginPage("/oauth2/authorize/login");
+    }
+
+    Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer() {
+        return registry -> registry
+                .requestMatchers("/oauth2/authorize/login", "/oauth2/authorize/error", "/oauth2/authorize/registration/email-password")
+                .permitAll()
+                .anyRequest()
+                .authenticated();
     }
 
     private Customizer<CorsConfigurer<HttpSecurity>> corsCustomizer() {

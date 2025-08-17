@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f6f9fc;
+            color: #333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .verification-code {
+            background-color: #f8f9fa;
+            border: 2px solid #5563DE;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .verification-code .label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .verification-code .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #5563DE;
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .instructions {
+            background-color: #f8f9fa;
+            border-left: 4px solid #5563DE;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        .instructions ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .footer a {
+            color: #5563DE;
+            text-decoration: none;
+        }
+        .security-notice {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .security-notice strong {
+            color: #856404;
+        }
+        .expiry-notice {
+            text-align: center;
+            font-size: 14px;
+            color: #dc3545;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1 th:text="${appName}">Funchive</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Verify Your Email Address</h2>
+            
+            <p>Hello!</p>
+            
+            <p>Thank you for registering with <span th:text="${appName}">Funchive</span>. To complete your registration, please verify your email address using the verification code below:</p>
+            
+            <div class="verification-code">
+                <div class="label">Your Verification Code</div>
+                <div class="code" th:text="${verificationCode}">123456</div>
+                <div class="expiry-notice">This code expires in 15 minutes</div>
+            </div>
+            
+            <div class="instructions">
+                <h3>How to use this code:</h3>
+                <ul>
+                    <li>Return to the registration page</li>
+                    <li>Enter the 6-digit code above</li>
+                    <li>Click "Verify Email" to continue</li>
+                </ul>
+            </div>
+            
+            <p>If you didn't request this verification code, you can safely ignore this email. The code will expire automatically.</p>
+            
+            <div class="security-notice">
+                <strong>Security Notice:</strong> Never share this verification code with anyone. <span th:text="${appName}">Funchive</span> will never ask for your verification code via phone, email, or any other method.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>This email was sent to <strong th:text="${email}">user@example.com</strong></p>
+            <p>© 2024 <span th:text="${appName}">Funchive</span>. All rights reserved.</p>
+            <p>
+                Need help? Contact us at 
+                <a href="mailto:support@funchive.com">support@funchive.com</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

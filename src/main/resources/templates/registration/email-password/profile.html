@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registration - Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .registration-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 420px;
+            color: white;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .progress-step {
+            width: 20%;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+        }
+
+        .progress-step.active {
+            background: white;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .required {
+            color: #ff6b6b;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="url"] {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(85, 99, 222, 0.3);
+        }
+
+        .field-info {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 0.3rem;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .alert {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #5563DE;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: #3f4ac4;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            overflow: hidden;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="registration-container">
+    <div class="progress-bar">
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+    </div>
+
+    <h2>Complete Your Profile</h2>
+    <p class="subtitle">Tell us a bit about yourself</p>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <form th:action="@{/registration/email-password/profile}" method="post" th:object="${registrationDto}">
+        <div class="avatar-preview" id="avatarPreview">
+            👤
+        </div>
+
+        <div class="form-group">
+            <label for="name">Full Name <span class="required">*</span></label>
+            <input type="text" id="name" th:field="*{name}" placeholder="Enter your full name" required />
+            <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="birthDate">Date of Birth <span class="required">*</span></label>
+            <input type="date" id="birthDate" th:field="*{birthDate}" required />
+            <div class="field-info">You must be at least 13 years old to register</div>
+            <div class="error" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="avatarUrl">Avatar URL (optional)</label>
+            <input type="url" id="avatarUrl" th:field="*{avatarUrl}" placeholder="https://example.com/your-avatar.jpg" />
+            <div class="field-info">Link to your profile picture</div>
+            <div class="error" th:if="${#fields.hasErrors('avatarUrl')}" th:errors="*{avatarUrl}"></div>
+        </div>
+
+        <button type="submit" class="btn">Complete Registration</button>
+    </form>
+
+    <form th:action="@{/registration/email-password/cancel}" method="post" style="margin-top: 1rem;">
+        <button type="submit" class="btn btn-secondary">Cancel Registration</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatarUrl = document.getElementById('avatarUrl');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const nameInput = document.getElementById('name');
+        
+        function updateAvatarPreview() {
+            const url = avatarUrl.value.trim();
+            if (url) {
+                // Try to load the image
+                const img = new Image();
+                img.onload = function() {
+                    avatarPreview.innerHTML = `<img src="${url}" alt="Avatar" />`;
+                };
+                img.onerror = function() {
+                    // Fallback to initials or default icon
+                    updateInitials();
+                };
+                img.src = url;
+            } else {
+                updateInitials();
+            }
+        }
+        
+        function updateInitials() {
+            const name = nameInput.value.trim();
+            if (name) {
+                const initials = name.split(' ')
+                    .map(part => part.charAt(0).toUpperCase())
+                    .slice(0, 2)
+                    .join('');
+                avatarPreview.innerHTML = initials || '👤';
+            } else {
+                avatarPreview.innerHTML = '👤';
+            }
+        }
+        
+        avatarUrl.addEventListener('input', updateAvatarPreview);
+        nameInput.addEventListener('input', updateInitials);
+        
+        // Set max date to 13 years ago
+        const today = new Date();
+        const maxDate = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+        document.getElementById('birthDate').max = maxDate.toISOString().split('T')[0];
+        
+        // Set min date to reasonable limit (e.g., 120 years ago)
+        const minDate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+        document.getElementById('birthDate').min = minDate.toISOString().split('T')[0];
+    });
+</script>
+</body>
+</html>

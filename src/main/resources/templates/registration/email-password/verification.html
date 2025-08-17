@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registration - Email Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .registration-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 420px;
+            color: white;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .progress-step {
+            width: 20%;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+        }
+
+        .progress-step.active {
+            background: white;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .email-display {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            outline: none;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            text-align: center;
+            letter-spacing: 0.2rem;
+            font-weight: 600;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(85, 99, 222, 0.3);
+        }
+
+        .verification-info {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .alert {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .alert-error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #5563DE;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: #3f4ac4;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-link {
+            background: transparent;
+            color: white;
+            text-decoration: underline;
+            font-weight: normal;
+            font-size: 0.9rem;
+        }
+
+        .btn-link:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .resend-section {
+            text-align: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+<div class="registration-container">
+    <div class="progress-bar">
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+        <div class="progress-step"></div>
+    </div>
+
+    <h2>Verify Your Email</h2>
+    <p class="subtitle">We've sent a verification code to:</p>
+    
+    <div class="email-display" th:text="${email}">user@example.com</div>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <form th:action="@{/registration/email-password/verification}" method="post" th:object="${registrationDto}">
+        <div class="form-group">
+            <label for="verificationCode">Verification Code</label>
+            <input type="text" id="verificationCode" th:field="*{verificationCode}" 
+                   placeholder="000000" maxlength="6" required 
+                   pattern="[0-9]{6}" title="Please enter a 6-digit code" />
+            <div class="verification-info">
+                Enter the 6-digit code sent to your email
+            </div>
+            <div class="error" th:if="${#fields.hasErrors('verificationCode')}" th:errors="*{verificationCode}"></div>
+        </div>
+
+        <button type="submit" class="btn">Verify Email</button>
+    </form>
+
+    <div class="resend-section">
+        <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 1rem;">
+            Didn't receive the code?
+        </p>
+        <form th:action="@{/registration/email-password/verification/resend}" method="post">
+            <button type="submit" class="btn btn-link">Resend Code</button>
+        </form>
+    </div>
+
+    <form th:action="@{/registration/email-password/cancel}" method="post" style="margin-top: 1rem;">
+        <button type="submit" class="btn btn-secondary">Cancel Registration</button>
+    </form>
+</div>
+
+<script>
+    // Auto-focus and format the verification code input
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('verificationCode');
+        input.focus();
+        
+        input.addEventListener('input', function(e) {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Limit to 6 characters
+            if (this.value.length > 6) {
+                this.value = this.value.slice(0, 6);
+            }
+        });
+        
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const numbers = paste.replace(/[^0-9]/g, '').slice(0, 6);
+            this.value = numbers;
+        });
+    });
+</script>
+</body>
+</html>
